@@ -1,6 +1,6 @@
 const { parse } = require('dotenv');
 const { get } = require('../routes/serverRouter');
-const { getAllStudents, getStudentById, insertStudent, getStudentsByClass, getStudentsByName} = require('../services/StudentService');
+const { getAllStudents, getStudentById, insertStudent, getStudentsByClass, getStudentsByName, updateStudentVaccinationStatus} = require('../services/StudentService');
 
 const insert = async (req, res) => {
     try {
@@ -51,9 +51,21 @@ const getById = async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 }
+
+async function update(req, res) {
+    try {
+        console.log('Updating student by ID:',req.params.id);
+        const response = await updateStudentVaccinationStatus(req.body, req.params.id);
+        res.status(200).send(response);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+}
 module.exports = {
     insertStudent: insert,
     getAllStudents: getAll,
-    getStudentById: getById
+    getStudentById: getById,
+    updateStudent: update
     
 }

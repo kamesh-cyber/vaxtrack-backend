@@ -1,4 +1,6 @@
 const mongoDBClient = require('../services/MongoDBService.js')
+const {checkForDuplicateVaccinations} = require('../helpers/checkForDuplicateVaccinations')
+
 async function getAllStudents(req) {
     const db = await mongoDBClient.client;
     const collection = db.collection("students");
@@ -117,10 +119,59 @@ async function getStudentsByName(req, name) {
     }
     return message
 }
+async function updateStudentVaccinationStatus(body,id) {
+    const db = await mongoDBClient.client;
+    const collection = db.collection("students");
+    const student = await collection.findOne({ _id: id });
+    let message = {};
+    const updateBody = {
+        vaccinations: {
+            driveId: body.driveId,
+            vaccineName: body.vaccineName
+        }
+    }
+
+    if (student) {
+        console.log("Student retrieved successfully");
+        const duplicateVaccination = checkForDuplicateVaccinations(student, updateBody);
+        if (duplicateVaccination) {
+            console.log(duplicateVaccination);
+            console.log("Duplicate vaccination found");
+            message = {
+                success: false,
+                error: "Duplicate vaccination found",
+            };
+            return message
+        }
+        const result = await collection.updateOne(
+            { _id: id },
+            { $push: updateBody}
+        );
+        if (result.modifiedCount > 0) {
+            message = {
+                success: true,
+                data: updateBody,
+            };
+        } else {
+            message = {
+                success: false,
+                error: "Failed to update vaccination status",
+            };
+        }
+    } else {
+        console.log("Student not found");
+        message = {
+            success: false,
+            error: "Student not found",
+        };
+    }
+    return message
+}
 module.exports = {
     insertStudent,
     getAllStudents,
     getStudentById,
     getStudentsByClass,
-    getStudentsByName
+    getStudentsByName,
+    updateStudentVaccinationStatus
 };
