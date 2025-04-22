@@ -1,6 +1,5 @@
 const mongoDBClient = require('../services/MongoDBService.js')
 const {checkForDuplicateVaccinations} = require('../helpers/checkForDuplicateVaccinations');
-const e = require('express');
 
 async function getAllStudents(req) {
     const db = await mongoDBClient.client;
@@ -41,6 +40,8 @@ async function insertStudent(req, body) {
         class: body.class,
         gender:body.gender,
         dateOfBirth: body.dateOfBirth,
+        created_on: new Date(),
+        updated_on: new Date()
     };
     const result = await collection.insertOne(student);
     let message = {};
@@ -146,7 +147,8 @@ async function updateStudentVaccinationStatus(body,id) {
         }
         const result = await collection.updateOne(
             { _id: id },
-            { $push: updateBody}
+            { $push: updateBody,
+            $set: { updated_on: new Date() } }
         );
         if (result.modifiedCount > 0) {
             message = {

@@ -12,14 +12,31 @@ const {getStudentById} = require("../controller/StudentController");
 const {updateStudent} = require("../controller/StudentController");
 const {bulkInsertStudents} = require("../controller/StudentController");
 
-router.get('/login', login)
+const {getAllVaccinationDrives} = require("../controller/VaccinationController");
+const {insertVaccinationDrive} = require("../controller/VaccinationController");
 
-router.post('/students',insertStudent)
+const {
+    validateLogin,
+    validateInsertStudent,
+    validateStudentId,
+    validateUpdateVaccinationStatus,
+    validateBulkInsertFile,
+    validateVaccinationDrive
+  } = require("../middleware/validators");
+
+router.get('/login',validateLogin,login)
+
+
+router.post('/students',validateInsertStudent,insertStudent)
 
 router.get('/students',getAllStudents)
-router.get('/students/:id',getStudentById)
-router.put('/students/:id',getStudentById)
-router.patch('/students/:id/vaccinate',updateStudent)
-router.post('/students/bulk',upload.single('file') ,bulkInsertStudents)
+router.get('/students/:id',validateStudentId,getStudentById)
+
+router.patch('/students/:id/vaccinate',validateUpdateVaccinationStatus,updateStudent)
+router.post('/students/bulk',upload.single('file'),validateBulkInsertFile,bulkInsertStudents)
+
+
+router.get('/vaccinations',getAllVaccinationDrives)
+router.post('/vaccinations',validateVaccinationDrive,insertVaccinationDrive)
 
 module.exports = router
