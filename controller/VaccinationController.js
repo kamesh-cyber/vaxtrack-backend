@@ -1,5 +1,5 @@
 
-const { getAllVaccinationDrives,insertVaccinationDrive } = require('../services/VaccinationDriveService');
+const { getAllVaccinationDrives,insertVaccinationDrive ,updateVaccinationDrive} = require('../services/VaccinationDriveService');
 const insert = async (req, res) => {
     try {
         console.log('Inserting vaccination drive:');
@@ -20,9 +20,20 @@ const getAll = async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 }
-
+const update = async (req, res) => {
+    try {
+        console.log('Updating vaccination drive:');
+        const id = req.params.id
+        const response = await updateVaccinationDrive(id, req.body);
+        res.status(200).send(response);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+}
 
 module.exports = {
     insertVaccinationDrive : insert,
-    getAllVaccinationDrives : getAll
+    getAllVaccinationDrives : getAll,
+    updateVaccinationDrive : update
 }

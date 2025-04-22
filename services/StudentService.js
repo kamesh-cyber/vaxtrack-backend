@@ -128,7 +128,6 @@ async function updateStudentVaccinationStatus(body,id) {
     let message = {};
     const updateBody = {
         vaccinations: {
-            driveId: body.driveId,
             vaccineName: body.vaccineName
         }
     }
@@ -137,7 +136,6 @@ async function updateStudentVaccinationStatus(body,id) {
         console.log("Student retrieved successfully");
         const duplicateVaccination = checkForDuplicateVaccinations(student, updateBody);
         if (duplicateVaccination) {
-            console.log(duplicateVaccination);
             console.log("Duplicate vaccination found");
             message = {
                 success: false,

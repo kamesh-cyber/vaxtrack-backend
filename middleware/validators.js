@@ -67,16 +67,13 @@ const validateLogin = (req, res, next) => {
   
   const validateUpdateVaccinationStatus = (req, res, next) => {
     const { id } = req.params;
-    const { driveId, vaccineName } = req.body;
+    const {vaccineName } = req.body;
     const errors = [];
-    
+    if(!id) {
+        return res.status(400).json({ error: "Missing student ID" });
+    }
     if (!/^\d{6}$/.test(id)) {
       errors.push("Invalid student ID format: must be a 6-digit number");
-    }
-    
-    if (!driveId) errors.push("Missing required field: driveId");
-    if (driveId && (isNaN(driveId) || !Number.isInteger(Number(driveId)))) {
-      errors.push("Invalid data type: driveId must be an integer");
     }
     
     if (!vaccineName) errors.push("Missing required field: vaccineName");
@@ -105,27 +102,38 @@ const validateLogin = (req, res, next) => {
   };
   
   const validateVaccinationDrive = (req, res, next) => {
-    const { name, date, vaccineType, description } = req.body;
+    const { name, scheduled_date,available_doses,classes } = req.body;
     const errors = [];
     
     if (!name) errors.push("Missing required field: name");
+    if(!available_doses) errors.push("Missing required field: available_doses");
+    if(!classes) errors.push("Missing required field: classes");
+    if (available_doses && (isNaN(available_doses) || !Number.isInteger(Number(available_doses)))) {
+        errors.push("Invalid data type: available_doses must be an integer");
+    }
+    if(classes && !Array.isArray(classes)){
+        errors.push("Invalid data type: classes must be an array");
+    }
     if (name && typeof name !== 'string') errors.push("Invalid data type: name must be a string");
     
-    if (!date) errors.push("Missing required field: date");
-    if (date) {
+    if (!scheduled_date) errors.push("Missing required field: scheduled_date");
+    if (scheduled_date) {
       try {
-        new Date(date);
-        if (isNaN(new Date(date).getTime())) {
+        const scheduledDate = new Date(scheduled_date);
+        if (isNaN(scheduledDate.getTime())) {
           errors.push("Invalid data type: date must be a valid date");
+        }
+        else{
+            const today =  new Date();
+            let minimumDate = new Date()
+            minimumDate.setDate(today.getDate() + 15);
+            if(scheduledDate < minimumDate){
+                errors.push("Invalid date: must be at least 15 days from today");
+            }
         }
       } catch (e) {
         errors.push("Invalid data type: date must be a valid date");
       }
-    }
-    
-    if (!vaccineType) errors.push("Missing required field: vaccineType");
-    if (vaccineType && typeof vaccineType !== 'string') {
-      errors.push("Invalid data type: vaccineType must be a string");
     }
     
     if (errors.length > 0) {
@@ -134,7 +142,42 @@ const validateLogin = (req, res, next) => {
     
     next();
   };
-  
+  const validateUpdateVaccinationDrive = (req, res, next) => {
+      const { id } = req.params;
+      if (!id) {
+          return res.status(400).json({ error: "Missing vaccination drive ID" });
+      }
+      const {scheduled_date,available_doses} = req.body;
+      const errors = [];
+      if(!scheduled_date && !available_doses){
+          return res.status(400).json({ error: "Vaccination Update Data required any one field: scheduled_date,available_doses" });
+      }
+      if (scheduled_date) {
+        try {
+          const scheduledDate = new Date(scheduled_date);
+          if (isNaN(scheduledDate.getTime())) {
+            errors.push("Invalid data type: date must be a valid date");
+          }
+          else{
+              const today =  new Date();
+              let minimumDate = new Date()
+              minimumDate.setDate(today.getDate() + 15);
+              if(scheduledDate < minimumDate){
+                  errors.push("Invalid date: must be at least 15 days from today");
+              }
+          }
+        } catch (e) {
+          errors.push("Invalid data type: date must be a valid date");
+        }
+      }
+      if (available_doses && (isNaN(available_doses) || !Number.isInteger(Number(available_doses)))) {
+          errors.push("Invalid data type: available_doses must be an integer");
+      }
+      if (errors.length > 0) {
+        return res.status(400).json({ errors });
+      }
+      next();
+  }
   module.exports = {
     validateLogin,
     validateInsertStudent,
