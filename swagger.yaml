@@ -1,0 +1,128 @@
+openapi: 3.0.0
+info:
+  title: VaxTrack App API
+  version: 1.0.0
+  description: API documentation for the VaxTrack App.
+servers:
+  - url: http://localhost:3001
+paths:
+  /login:
+    get:
+      summary: Verify user login
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: user
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Login successful
+        401:
+          description: Unauthorized login
+  /students:
+    post:
+      summary: Insert a single student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                age:
+                  type: integer
+                class:
+                  type: integer
+                gender:
+                  type: string
+                dateOfBirth:
+                  type: string
+      responses:
+        200:
+          description: Student inserted successfully
+        500:
+          description: Internal server error
+    get:
+      summary: Get all students
+      parameters:
+        - name: class
+          in: query
+          schema:
+            type: integer
+        - name: name
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: List of students
+        500:
+          description: Internal server error
+  /students/{id}:
+    get:
+      summary: Get student by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Student record
+        404:
+          description: Student not found
+    patch:
+      summary: Update student vaccination status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                driveId:
+                  type: integer
+                vaccineName:
+                  type: string
+      responses:
+        200:
+          description: Vaccination status updated
+        400:
+          description: Duplicate vaccination found
+        404:
+          description: Student not found
+  /students/bulk:
+    post:
+      summary: Bulk insert students
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: Students inserted successfully
+        400:
+          description: Validation errors in the CSV file
+        500:
+          description: Internal server error

@@ -1,7 +1,8 @@
 const { parse } = require('dotenv');
 const { get } = require('../routes/serverRouter');
-const { getAllStudents, getStudentById, insertStudent, getStudentsByClass, getStudentsByName, updateStudentVaccinationStatus} = require('../services/StudentService');
-
+const { getAllStudents, getStudentById, insertStudent, getStudentsByClass
+    , getStudentsByName, updateStudentVaccinationStatus,bulkInsertStudents} = require('../services/StudentService');
+const {validateAndConvertCSVFile}  = require('../helpers/validateAndConvertCSVFile')
 const insert = async (req, res) => {
     try {
         console.log('Inserting student:');
@@ -62,10 +63,24 @@ async function update(req, res) {
         res.status(500).send("Internal Server Error");
     }
 }
+
+async function bulkInsert(req, res) {
+    try {
+        console.log('Bulk inserting students:',req.file);
+        const convertedData = await validateAndConvertCSVFile(req.file)
+        console.log('Converted data:', convertedData); 
+        const response = await bulkInsertStudents(convertedData);
+        res.status(200).send(response);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+}
 module.exports = {
     insertStudent: insert,
     getAllStudents: getAll,
     getStudentById: getById,
-    updateStudent: update
+    updateStudent: update,
+    bulkInsertStudents: bulkInsert
     
 }

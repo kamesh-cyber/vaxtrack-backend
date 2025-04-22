@@ -1,5 +1,6 @@
 const mongoDBClient = require('../services/MongoDBService.js')
-const {checkForDuplicateVaccinations} = require('../helpers/checkForDuplicateVaccinations')
+const {checkForDuplicateVaccinations} = require('../helpers/checkForDuplicateVaccinations');
+const e = require('express');
 
 async function getAllStudents(req) {
     const db = await mongoDBClient.client;
@@ -167,11 +168,35 @@ async function updateStudentVaccinationStatus(body,id) {
     }
     return message
 }
+async function bulkInsertStudents(dataToInsert) {
+    const db = await mongoDBClient.client;
+    const collection = db.collection("students");
+    const result = await collection.insertMany(dataToInsert);
+    if(result.acknowledged){
+        console.log("Students inserted successfully");
+        return {
+            success: true,
+            data: result.insertedIds,
+        };
+    }
+    else{
+        console.log("Failed to insert students");
+        return {
+            success: false,
+            error: "Failed to insert students",
+        };
+    }
+
+
+
+    
+}
 module.exports = {
     insertStudent,
     getAllStudents,
     getStudentById,
     getStudentsByClass,
     getStudentsByName,
-    updateStudentVaccinationStatus
+    updateStudentVaccinationStatus,
+    bulkInsertStudents
 };

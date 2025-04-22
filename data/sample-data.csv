@@ -1,0 +1,11 @@
+_id,name,age,class,gender,dateOfBirth,vaccinations
+075497,mani,10,7,male,10-03-2018,"[{""driveId"": 1, ""vaccineName"": ""HepatitisB""}]"
+075465,sneha,11,6,female,25-07-2017,"[{""driveId"": 1, ""vaccineName"": ""HepatitisB""}]"
+075466,arjun,9,5,male,14-11-2015,"[{""driveId"": 2, ""vaccineName"": ""Polio""}]"
+075467,riya,10,7,female,02-01-2016,"[{""driveId"": 1, ""vaccineName"": ""HepatitisB""}, {""driveId"": 3, ""vaccineName"": ""MMR""}]"
+075468,kiran,12,7,non-binary,29-04-2014,"[]"
+075469,dev,11,6,male,18-09-2013,"[{""driveId"": 2, ""vaccineName"": ""Polio""}]"
+075470,meena,9,5,female,03-12-2015,"[{""driveId"": 4, ""vaccineName"": ""BCG""}]"
+075471,ravi,10,6,male,30-06-2016,"[{""driveId"": 3, ""vaccineName"": ""MMR""}]"
+075472,sara,8,4,female,01-08-2016,"[]"
+075473,naveen,10,6,male,20-10-2014,"[{""driveId"": 4, ""vaccineName"": ""BCG""}]"
