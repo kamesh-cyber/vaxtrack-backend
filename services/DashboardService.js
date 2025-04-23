@@ -12,6 +12,13 @@ async function getDashboardOverviewService(req) {
         percentageOfStudentsVaccinated = Math.ceil((numberOfStudentsVaccinated / students.data.length) * 100);
         
     }
+    let upcomingDrives = [];
+    if (vaccinationDrives.success && vaccinationDrives.data.length > 0) {
+        let today = new Date();
+        let maximumDate = new Date()
+        maximumDate.setDate(today.getDate() + 30);
+        upcomingDrives = vaccinationDrives.data.filter(drive => new Date(drive.scheduled_date) < maximumDate);
+    }
 
     let message = {};
     if (students.success && vaccinationDrives.success) {
@@ -22,7 +29,8 @@ async function getDashboardOverviewService(req) {
                 totalStudents: students.data.length,
                 totalVaccinationDrives: vaccinationDrives.data.length,
                 numberOfStudentsVaccinated: numberOfStudentsVaccinated,
-                percentageOfStudentsVaccinated: percentageOfStudentsVaccinated
+                percentageOfStudentsVaccinated: percentageOfStudentsVaccinated,
+                upcomingDrives:upcomingDrives
             },
         };
     } else {
