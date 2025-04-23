@@ -16,6 +16,8 @@ const {getAllVaccinationDrives} = require("../controller/VaccinationController")
 const {insertVaccinationDrive} = require("../controller/VaccinationController");
 const {updateVaccinationDrive} = require("../controller/VaccinationController");
 
+const {getDashboardOverview} = require("../controller/DashboardController.js");
+
 const {
     validateLogin,
     validateInsertStudent,
@@ -40,5 +42,7 @@ router.post('/students/bulk',upload.single('file'),validateBulkInsertFile,bulkIn
 router.get('/vaccinations',getAllVaccinationDrives)
 router.post('/vaccinations',validateVaccinationDrive,insertVaccinationDrive)
 router.patch('/vaccinations/:id',updateVaccinationDrive)
+
+router.get('/dashboard/overview',getDashboardOverview)
 
 module.exports = router
