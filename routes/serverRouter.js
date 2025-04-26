@@ -24,7 +24,8 @@ const {
     validateStudentId,
     validateUpdateVaccinationStatus,
     validateBulkInsertFile,
-    validateVaccinationDrive
+    validateVaccinationDrive,
+    validateGetAllStudents
   } = require("../middleware/validators");
 
 router.get('/login',validateLogin,login)
@@ -32,7 +33,7 @@ router.get('/login',validateLogin,login)
 
 router.post('/students',validateInsertStudent,insertStudent)
 
-router.get('/students',getAllStudents)
+router.get('/students',validateGetAllStudents,getAllStudents)
 router.get('/students/:id',validateStudentId,getStudentById)
 
 router.patch('/students/:id/vaccinate',validateUpdateVaccinationStatus,updateStudent)

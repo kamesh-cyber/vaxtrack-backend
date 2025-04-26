@@ -87,8 +87,52 @@ async function updateVaccinationDrive (id, drive) {
     }
     return message
 }
+
+async function getVacccinationDriveById (id) {
+    const db = await mongoDBClient.client;
+    const collection = db.collection("vaccination_drives");
+    const vaccinationDrive = await collection.findOne({ _id: new mongo.ObjectId(id) });
+    let message = {};
+    if (vaccinationDrive) {
+        console.log("Vaccination drive retrieved successfully");
+        message = {
+            success: true,
+            data: vaccinationDrive,
+        };
+    } else {
+        console.log("Vaccination drive not found");
+        message = {
+            success: false,
+            error: "data not found",
+        };
+    }
+    return message
+}
+async function getVaccinationDriveByName(name) {
+    const db = await mongoDBClient.client;
+    const collection = db.collection("vaccination_drives");
+    const vaccinationDrive = await collection.find  ({ name: name }).toArray();
+    let message = {}; 
+    if (vaccinationDrive.length > 0) {
+        console.log("Vaccination drive retrieved successfully");
+        message = {
+            success: true,
+            data: vaccinationDrive,
+        };
+    } else {
+        console.log("Vaccination drive not found");
+        message = {
+            success: false,
+            error: "data not found",
+        };
+    }
+    return message
+}
+
+
 module.exports = {
     getAllVaccinationDrives,
     insertVaccinationDrive,
-    updateVaccinationDrive
+    updateVaccinationDrive,
+    getVaccinationDriveByName
 }

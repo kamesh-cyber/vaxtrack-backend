@@ -191,6 +191,28 @@ async function bulkInsertStudents(dataToInsert) {
 
     
 }
+async function getStudentsByVaccinationStatus(vaccinationStatus) {
+    const db = await mongoDBClient.client;
+    const collection = db.collection("students");
+    vaccinationStatus = vaccinationStatus === "true" ? true : false;
+    const students = await collection.find({ "vaccinations": {$exists: vaccinationStatus} }).toArray();
+    let message = {};
+    if (students.length > 0) {
+        console.log("Students retrieved successfully");
+        message = {
+            success: true,
+            data: students,
+        };
+    } else {
+        console.log("No students found");
+        message = {
+            success: false,
+            error: "data not found",
+        };
+    }
+    return message
+}
+
 module.exports = {
     insertStudent,
     getAllStudents,
@@ -198,5 +220,6 @@ module.exports = {
     getStudentsByClass,
     getStudentsByName,
     updateStudentVaccinationStatus,
-    bulkInsertStudents
+    bulkInsertStudents,
+    getStudentsByVaccinationStatus
 };

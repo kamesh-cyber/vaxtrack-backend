@@ -178,11 +178,37 @@ const validateLogin = (req, res, next) => {
       }
       next();
   }
+
+  function validateGetAllStudents(req, res, next) {
+    const { class: studentClass, name, vaccinationStatus } = req.query;
+    const errors = [];
+    
+    if (studentClass && (isNaN(studentClass) || !Number.isInteger(Number(studentClass)))) {
+      errors.push("Invalid data type: class must be an integer");
+    } else if (studentClass && (studentClass < 1 || studentClass > 12)) {
+      errors.push("Invalid class: must be between 1 and 12");
+    }
+    
+    if (name && typeof name !== 'string') {
+      errors.push("Invalid data type: name must be a string");
+    }
+    
+    if (vaccinationStatus && !['true', 'false'].includes(vaccinationStatus.toLowerCase())) {
+      errors.push("Invalid vaccination status: must be 'true' or 'false'");
+    }
+    
+    if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
+    
+    next();
+  }
   module.exports = {
     validateLogin,
     validateInsertStudent,
     validateStudentId,
     validateUpdateVaccinationStatus,
     validateBulkInsertFile,
-    validateVaccinationDrive
+    validateVaccinationDrive,
+    validateGetAllStudents
   };

@@ -1,7 +1,7 @@
 const { parse } = require('dotenv');
 const { get } = require('../routes/serverRouter');
 const { getAllStudents, getStudentById, insertStudent, getStudentsByClass
-    , getStudentsByName, updateStudentVaccinationStatus,bulkInsertStudents} = require('../services/StudentService');
+    , getStudentsByName, updateStudentVaccinationStatus,bulkInsertStudents,getStudentsByVaccinationStatus} = require('../services/StudentService');
 const {validateAndConvertCSVFile}  = require('../helpers/validateAndConvertCSVFile')
 const insert = async (req, res) => {
     try {
@@ -28,11 +28,12 @@ const getAll = async (req, res) => {
             res.status(200).send(response);
             return
         }
-        // if(req.query.vaccinationStatus){
-        //     console.log('Getting students by vaccination status:',req.query)
-        //     const response = await getStudentByVaccinationStatus(req, req.query.vaccinationStatus);
-        //     res.status(200).send(response);
-        // }
+        if(req.query.vaccinationStatus){
+            console.log('Getting students by vaccination status:',req.query)
+            const response = await getStudentsByVaccinationStatus(req.query.vaccinationStatus);
+            res.status(200).send(response);
+            return
+        }
         console.log('Getting all students:');
         const response = await getAllStudents(req);
         res.status(200).send(response);
