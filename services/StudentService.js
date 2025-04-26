@@ -212,6 +212,26 @@ async function getStudentsByVaccinationStatus(vaccinationStatus) {
     }
     return message
 }
+async function getStudentsByVaccineName(vaccineName) {
+    const db = await mongoDBClient.client;
+    const collection = db.collection("students");
+    const students = await collection.find({ vaccinations: { $elemMatch: {vaccineName:vaccineName} }} ,{projection:{name:1,gender:1,"vaccinations.vaccineName.$":1}}).toArray();
+    let message = {};
+    if (students.length > 0) {
+        console.log("Students retrieved successfully");
+        message = {
+            success: true,
+            data: students,
+        };
+    } else {
+        console.log("No students found");
+        message = {
+            success: false,
+            error: "data not found",
+        };
+    }
+    return message
+}
 
 module.exports = {
     insertStudent,
@@ -221,5 +241,6 @@ module.exports = {
     getStudentsByName,
     updateStudentVaccinationStatus,
     bulkInsertStudents,
-    getStudentsByVaccinationStatus
+    getStudentsByVaccinationStatus,
+    getStudentsByVaccineName
 };
