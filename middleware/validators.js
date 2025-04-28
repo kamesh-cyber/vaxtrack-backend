@@ -82,12 +82,12 @@ const validateLogin = (req, res, next) => {
       errors.push("Invalid data type: vaccineName must be a string");
     }
 
-    if(!vaccinatedOn) errors.push("Missing required field: scheduledDate");
+    if(!vaccinatedOn) errors.push("Missing required field: vaccinatedOn");
     if (vaccinatedOn && typeof vaccinatedOn !== 'string') {
-      errors.push("Invalid data type: scheduledDate must be a string");
+      errors.push("Invalid data type: vaccinatedOn must be a string");
     }
     if (vaccinatedOn && !/^\d{2}-\d{2}-\d{4}$/.test(vaccinatedOn)) {
-      errors.push("Invalid date format: scheduledDate must be in DD-MM-YYYY format");
+      errors.push("Invalid date format: vaccinatedOn must be in DD-MM-YYYY format");
     }
     
     if (errors.length > 0) {

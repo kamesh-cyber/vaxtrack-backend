@@ -1,6 +1,7 @@
 const mongoDBClient = require('../services/MongoDBService.js')
 const {checkForDuplicateVaccinations} = require('../helpers/checkForDuplicateVaccinations');
 const {generateRollNumber} = require('../helpers/generateRollNumber');
+const status_codes = require('../helpers/statusCode');
 
 async function getAllStudents(req) {
     const db = await mongoDBClient.client;
@@ -10,12 +11,14 @@ async function getAllStudents(req) {
     if (students.length > 0) {
         console.log("Students retrieved successfully");
         message = {
+            statusCode: status_codes.OK,
             success: true,
             data: students,
         };
     } else {
         console.log("No students found");
         message = {
+            statusCode: status_codes.NOT_FOUND,
             success: false,
             error: "data not found",
         };
@@ -43,6 +46,7 @@ async function insertStudent(req, body) {
     if (result.acknowledged) {
         console.log("Student inserted successfully");
          message = {
+            statusCode: status_codes.CREATED,
             message: "Student inserted successfully",
             studentId: result.insertedId,
         };
@@ -50,6 +54,7 @@ async function insertStudent(req, body) {
     } else {
         console.log("Failed to insert student");
          message = {
+            statusCode: status_codes.INTERNAL_SERVER_ERROR,
             success: false,
             error: "Failed to insert student",
         };
@@ -64,12 +69,14 @@ async function getStudentById(req, id) {
     if (student) {
         console.log("Student retrieved successfully");
         message = {
+            statusCode: status_codes.OK,
             success: true,
             data: student,
         };
     } else {
         console.log("Student not found");
         message = {
+            statusCode: status_codes.NOT_FOUND,
             success: false,
             error: "Student not found",
         };
@@ -84,12 +91,14 @@ async function getStudentsByClass(req, className) {
     if (students.length > 0) {
         console.log("Students retrieved successfully");
         message = {
+            statusCode: status_codes.OK,
             success: true,
             data: students,
         };
     } else {
         console.log("No students found");
         message = {
+            statusCode: status_codes.NOT_FOUND,
             success: false,
             error: "data not found",
         };
@@ -134,6 +143,7 @@ async function updateStudentVaccinationStatus(body,id) {
         if (duplicateVaccination) {
             console.log("Duplicate vaccination found");
             message = {
+                statusCode: status_codes.BAD_REQUEST,
                 success: false,
                 error: "Duplicate vaccination found",
             };
@@ -146,11 +156,13 @@ async function updateStudentVaccinationStatus(body,id) {
         );
         if (result.modifiedCount > 0) {
             message = {
+                statusCode: status_codes.OK,
                 success: true,
                 data: updateBody,
             };
         } else {
             message = {
+                statusCode:status_codes.INTERNAL_SERVER_ERROR,
                 success: false,
                 error: "Failed to update vaccination status",
             };
@@ -158,6 +170,7 @@ async function updateStudentVaccinationStatus(body,id) {
     } else {
         console.log("Student not found");
         message = {
+            statusCode:status_codes.NOT_FOUND,
             success: false,
             error: "Student not found",
         };
@@ -170,14 +183,17 @@ async function bulkInsertStudents(dataToInsert) {
     const result = await collection.insertMany(dataToInsert);
     if(result.acknowledged){
         console.log("Students inserted successfully");
+        const idArray = Object.values(result.insertedIds)
         return {
+            statusCode: status_codes.OK,
             success: true,
-            data: result.insertedIds,
+            data: idArray
         };
     }
     else{
         console.log("Failed to insert students");
         return {
+            statusCode:status_codes.INTERNAL_SERVER_ERROR,
             success: false,
             error: "Failed to insert students",
         };
@@ -196,12 +212,14 @@ async function getStudentsByVaccinationStatus(vaccinationStatus) {
     if (students.length > 0) {
         console.log("Students retrieved successfully");
         message = {
+            statusCode: status_codes.OK,
             success: true,
             data: students,
         };
     } else {
         console.log("No students found");
         message = {
+            statusCode: status_codes.NOT_FOUND,
             success: false,
             error: "data not found",
         };
@@ -216,12 +234,14 @@ async function getStudentsByVaccineName(vaccineName) {
     if (students.length > 0) {
         console.log("Students retrieved successfully");
         message = {
+            statusCode: status_codes.OK,
             success: true,
             data: students,
         };
     } else {
         console.log("No students found");
         message = {
+            statusCode: status_codes.NOT_FOUND,
             success: false,
             error: "data not found",
         };

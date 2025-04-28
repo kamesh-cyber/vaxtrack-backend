@@ -1,6 +1,7 @@
 const mongoDBClient = require('../services/MongoDBService.js')
 const mongo = require('mongodb');
 const {checkForSchedulingConflicts} = require('../helpers/checkForSchedulingConflicts')
+const status_codes = require('../helpers/statusCode')
 
 async function getAllVaccinationDrives(req) {
     const  db = await mongoDBClient.client;
@@ -10,12 +11,14 @@ async function getAllVaccinationDrives(req) {
     if (vaccinationDrives.length > 0) {
         console.log("Vaccination drives retrieved successfully");
         message = {
+            statusCode: status_codes.OK,
             success: true,
             data: vaccinationDrives,
         };
     } else {
         console.log("No vaccination drives found");
         message = {
+            statusCode: status_codes.NOT_FOUND,
             success: false,
             error: "data not found",
         };
@@ -33,6 +36,7 @@ async function insertVaccinationDrive (req, drive) {
     const conflict = checkForSchedulingConflicts(vaccinationData,drive)
     if(conflict){
         return {
+            statusCode: status_codes.BAD_REQUEST,
             success: false,
             error: "Drive already exists for classes: " + conflict.join(", "),
         };
@@ -42,12 +46,14 @@ async function insertVaccinationDrive (req, drive) {
     if (result.acknowledged) {
         console.log("Vaccination drive inserted successfully");
         message = {
+            statusCode: status_codes.CREATED,
             success: true,
             data: result,
         };
     } else {
         console.log("Vaccination drive insertion failed");
         message = {
+            statusCode: status_codes.INTERNAL_SERVER_ERROR,
             success: false,
             error: "insert failed",
         };
@@ -75,12 +81,14 @@ async function updateVaccinationDrive (id, drive) {
     if (result.acknowledged) {
         console.log("Vaccination drive updated successfully");
         message = {
+            statusCode: status_codes.OK,
             success: true,
             data: result,
         };
     } else {
         console.log("Vaccination drive update failed");
         message = {
+            statusCode: status_codes.INTERNAL_SERVER_ERROR,
             success: false,
             error: "update failed",
         };
@@ -96,12 +104,14 @@ async function getVacccinationDriveById (id) {
     if (vaccinationDrive) {
         console.log("Vaccination drive retrieved successfully");
         message = {
+            statusCode: status_codes.OK,
             success: true,
             data: vaccinationDrive,
         };
     } else {
         console.log("Vaccination drive not found");
         message = {
+            statusCode: status_codes.NOT_FOUND,
             success: false,
             error: "data not found",
         };
@@ -116,12 +126,14 @@ async function getVaccinationDriveByName(name) {
     if (vaccinationDrive.length > 0) {
         console.log("Vaccination drive retrieved successfully");
         message = {
+            statusCode: status_codes.OK,
             success: true,
             data: vaccinationDrive,
         };
     } else {
         console.log("Vaccination drive not found");
         message = {
+            statusCode: status_codes.NOT_FOUND,
             success: false,
             error: "data not found",
         };
