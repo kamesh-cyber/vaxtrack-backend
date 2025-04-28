@@ -67,7 +67,8 @@ const validateLogin = (req, res, next) => {
   
   const validateUpdateVaccinationStatus = (req, res, next) => {
     const { id } = req.params;
-    const {vaccineName } = req.body;
+    const {vaccineName ,vaccinatedOn} = req.body;
+    console.log("req.body",req.body)
     const errors = [];
     if(!id) {
         return res.status(400).json({ error: "Missing student ID" });
@@ -79,6 +80,14 @@ const validateLogin = (req, res, next) => {
     if (!vaccineName) errors.push("Missing required field: vaccineName");
     if (vaccineName && typeof vaccineName !== 'string') {
       errors.push("Invalid data type: vaccineName must be a string");
+    }
+
+    if(!vaccinatedOn) errors.push("Missing required field: scheduledDate");
+    if (vaccinatedOn && typeof vaccinatedOn !== 'string') {
+      errors.push("Invalid data type: scheduledDate must be a string");
+    }
+    if (vaccinatedOn && !/^\d{2}-\d{2}-\d{4}$/.test(vaccinatedOn)) {
+      errors.push("Invalid date format: scheduledDate must be in DD-MM-YYYY format");
     }
     
     if (errors.length > 0) {

@@ -2,113 +2,280 @@ openapi: 3.0.0
 info:
   title: VaxTrack App API
   version: 1.0.0
-  description: API documentation for the VaxTrack App.
+  description: |
+    API documentation for the VaxTrack App, a comprehensive system for tracking student vaccinations
+    and managing vaccination drives in educational institutions.
 servers:
   - url: http://localhost:3001
+    description: Development server
 paths:
   /login:
     get:
       summary: Verify user login
+      tags:
+        - Authentication
       parameters:
         - name: code
           in: query
           required: true
           schema:
             type: string
+          description: Authentication token
         - name: user
           in: query
           required: true
           schema:
             type: string
+          description: Username
       responses:
-        200:
+        '200':
           description: Login successful
-        401:
+        '401':
           description: Unauthorized login
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Unauthorized Login"
+  
   /students:
     post:
       summary: Insert a single student
+      tags:
+        - Students
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                age:
-                  type: integer
-                class:
-                  type: integer
-                gender:
-                  type: string
-                dateOfBirth:
-                  type: string
+              $ref: '#/components/schemas/StudentInput'
       responses:
-        200:
+        '200':
           description: Student inserted successfully
-        500:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Student inserted successfully"
+                  studentId:
+                    type: string
+                    example: "075497"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
           description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                
     get:
-      summary: Get all students
+      summary: Get students with optional filters
+      tags:
+        - Students
       parameters:
         - name: class
           in: query
           schema:
             type: integer
+            minimum: 1
+            maximum: 12
+          description: Filter by class
         - name: name
           in: query
           schema:
             type: string
+          description: Search by name (case insensitive)
+        - name: vaccinationStatus
+          in: query
+          schema:
+            type: string
+            enum: ['true', 'false']
+          description: Filter by vaccination status
+        - name: vaccineName
+          in: query
+          schema:
+            type: string
+          description: Filter by vaccine name
       responses:
-        200:
+        '200':
           description: List of students
-        500:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Student'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
           description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                
   /students/{id}:
     get:
       summary: Get student by ID
+      tags:
+        - Students
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+            pattern: '^\d{6}$'
+          description: Student ID (6 digits)
       responses:
-        200:
+        '200':
           description: Student record
-        404:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Student'
+        '404':
           description: Student not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Student not found"
+        '400':
+          description: Invalid student ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                
+  /students/{id}/vaccinate:
     patch:
       summary: Update student vaccination status
+      tags:
+        - Students
+        - Vaccinations
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+            pattern: '^\d{6}$'
+          description: Student ID (6 digits)
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - vaccineName
+                - vaccinatedOn
               properties:
-                driveId:
-                  type: integer
                 vaccineName:
                   type: string
+                  example: "HepatitisB"
+                vaccinatedOn:
+                  type: string
+                  example: "25-04-2023"
+                  description: Date format DD-MM-YYYY
       responses:
-        200:
+        '200':
           description: Vaccination status updated
-        400:
-          description: Duplicate vaccination found
-        404:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      vaccinations:
+                        type: object
+                        properties:
+                          vaccineName:
+                            type: string
+                            example: "HepatitisB"
+                          vaccinatedOn:
+                            type: string
+                            example: "25-04-2023"
+        '400':
+          description: Duplicate vaccination found or validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Duplicate vaccination found"
+        '404':
           description: Student not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Student not found"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                
   /students/bulk:
     post:
-      summary: Bulk insert students
+      summary: Bulk insert students from CSV file
+      tags:
+        - Students
       requestBody:
         required: true
         content:
@@ -119,10 +286,415 @@ paths:
                 file:
                   type: string
                   format: binary
+                  description: CSV file with student data
       responses:
-        200:
+        '200':
           description: Students inserted successfully
-        400:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    additionalProperties:
+                      type: string
+        '400':
           description: Validation errors in the CSV file
-        500:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+        '500':
           description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                
+  /vaccinations:
+    post:
+      summary: Create a new vaccination drive
+      tags:
+        - Vaccination Drives
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VaccinationDriveInput'
+      responses:
+        '200':
+          description: Vaccination drive created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      acknowledged:
+                        type: boolean
+                        example: true
+                      insertedId:
+                        type: string
+                        example: "60a1e2c31f0d3c3e78cfe183"
+        '400':
+          description: Validation error or scheduling conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Drive already exists for classes: 5, 6"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                
+    get:
+      summary: Get all vaccination drives
+      tags:
+        - Vaccination Drives
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+          description: Filter by vaccination drive name
+      responses:
+        '200':
+          description: List of vaccination drives
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VaccinationDrive'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                
+  /vaccinations/{id}:
+    patch:
+      summary: Update vaccination drive
+      tags:
+        - Vaccination Drives
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Vaccination drive ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scheduled_date:
+                  type: string
+                  format: date-time
+                  description: Must be at least 15 days in the future
+                  example: "2023-05-15T09:00:00.000Z"
+                available_doses:
+                  type: integer
+                  example: 750
+      responses:
+        '200':
+          description: Vaccination drive updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      acknowledged:
+                        type: boolean
+                        example: true
+                      modifiedCount:
+                        type: integer
+                        example: 1
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                
+  /dashboard/overview:
+    get:
+      summary: Get dashboard overview with vaccination statistics
+      tags:
+        - Dashboard
+      responses:
+        '200':
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      totalStudents:
+                        type: integer
+                        example: 328
+                      totalVaccinationDrives:
+                        type: integer
+                        example: 5
+                      numberOfStudentsVaccinated:
+                        type: integer
+                        example: 265
+                      percentageOfStudentsVaccinated:
+                        type: integer
+                        example: 81
+                      upcomingDrives:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/VaccinationDrive'
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+                
+  /reports/students:
+    get:
+      summary: Generate student vaccination report
+      tags:
+        - Reports
+      parameters:
+        - name: vaccineName
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Name of vaccine to filter by
+        - name: reportType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [csv, pdf, excel]
+          description: Report format type
+      responses:
+        '200':
+          description: Report file
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: No students found for the specified vaccine
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "data not found"
+        '500':
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  schemas:
+    StudentInput:
+      type: object
+      required:
+        - name
+        - age
+        - class
+        - gender
+        - dateOfBirth
+      properties:
+        name:
+          type: string
+          example: "John Doe"
+        age:
+          type: integer
+          minimum: 3
+          maximum: 18
+          example: 10
+        class:
+          type: integer
+          minimum: 1
+          maximum: 12
+          example: 5
+        gender:
+          type: string
+          enum: [male, female]
+          example: "male"
+        dateOfBirth:
+          type: string
+          example: "10-03-2013"
+          description: Format DD-MM-YYYY
+          
+    Student:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "075497"
+        name:
+          type: string
+          example: "John Doe"
+        age:
+          type: integer
+          example: 10
+        class:
+          type: integer
+          example: 5
+        gender:
+          type: string
+          example: "male"
+        dateOfBirth:
+          type: string
+          example: "10-03-2013"
+        vaccinations:
+          type: array
+          items:
+            type: object
+            properties:
+              vaccineName:
+                type: string
+                example: "HepatitisB"
+              vaccinatedOn:
+                type: string
+                example: "25-04-2023"
+        created_on:
+          type: string
+          format: date-time
+        updated_on:
+          type: string
+          format: date-time
+          
+    VaccinationDriveInput:
+      type: object
+      required:
+        - name
+        - scheduled_date
+        - available_doses
+        - classes
+      properties:
+        name:
+          type: string
+          example: "Annual Hepatitis B Drive"
+        scheduled_date:
+          type: string
+          format: date-time
+          example: "2023-05-15T09:00:00.000Z"
+          description: Must be at least 15 days in the future
+        available_doses:
+          type: integer
+          example: 500
+        classes:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+            maximum: 12
+          example: [5, 6, 7]
+          
+    VaccinationDrive:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "60a1e2c31f0d3c3e78cfe183"
+        name:
+          type: string
+          example: "Annual Hepatitis B Drive"
+        scheduled_date:
+          type: string
+          format: date-time
+          example: "2023-05-15T09:00:00.000Z"
+        available_doses:
+          type: integer
+          example: 500
+        classes:
+          type: array
+          items:
+            type: integer
+          example: [5, 6, 7]
+        created_on:
+          type: string
+          format: date-time
+        updated_on:
+          type: string
+          format: date-time
+          
+    ValidationError:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+          example: 
+            - "Invalid age: must be between 3 and 18"
+            - "Invalid class: must be between 1 and 12"

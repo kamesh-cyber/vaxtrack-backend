@@ -1,11 +1,12 @@
 const fs = require('fs');
 const csv = require('csv-parser');
+const {generateRollNumber} = require('../helpers/generateRollNumber'); 
 
 function validateAndConvertCSVFile(file) {
     return new Promise((resolve, reject) => {
         const results = []
         const errors = []
-        const validHeaders = ['_id','name', 'age', 'class','gender','dateOfBirth', 'vaccinations'];
+        const validHeaders = ['name', 'age', 'class','gender','dateOfBirth'];
         const filePath = file.path;
 
         fs.createReadStream(filePath)
@@ -30,16 +31,17 @@ function validateAndConvertCSVFile(file) {
                     return;
                 }
                 
-                // Convert data to appropriate types
-                results.push({
-                    _id: data._id,
+                const convertdData = {
+                    _id: generateRollNumber(parseInt(data.class)),
                     name: data.name,
                     age: parseInt(data.age),
                     class: parseInt(data.class),
                     dateOfBirth: data.dateOfBirth,
                     gender:data.gender,
-                    vaccinations: data.vaccinations
-                });
+                    created_on: new Date(),
+                    updated_on: new Date()
+                }
+                results.push(convertdData);
             })
             .on('end', () => {
                 if (errors.length > 0) {

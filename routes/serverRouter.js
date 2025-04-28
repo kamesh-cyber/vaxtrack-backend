@@ -48,6 +48,6 @@ router.patch('/vaccinations/:id',updateVaccinationDrive)
 
 router.get('/dashboard/overview',getDashboardOverview)
 
-router.get('/reports/students',generateStudentReport)
+// router.get('/reports/students',generateStudentReport)
 
 module.exports = router

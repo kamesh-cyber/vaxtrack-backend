@@ -1,5 +1,6 @@
 const mongoDBClient = require('../services/MongoDBService.js')
 const {checkForDuplicateVaccinations} = require('../helpers/checkForDuplicateVaccinations');
+const {generateRollNumber} = require('../helpers/generateRollNumber');
 
 async function getAllStudents(req) {
     const db = await mongoDBClient.client;
@@ -22,13 +23,7 @@ async function getAllStudents(req) {
     return message
 }
 
-function generateRollNumber(grade) {
-    const prefix = grade< 10 ? "0" + grade : grade;
-    console.log("Prefix: ", prefix);
-    const rollNumber = Math.floor(1000 + Math.random() * 9000);
-    return prefix +""+ rollNumber;
 
-}
 async function insertStudent(req, body) {
     const db = await mongoDBClient.client;
     const collection = db.collection("students");
@@ -128,7 +123,8 @@ async function updateStudentVaccinationStatus(body,id) {
     let message = {};
     const updateBody = {
         vaccinations: {
-            vaccineName: body.vaccineName
+            vaccineName: body.vaccineName,
+            vaccinatedOn: body.vaccinatedOn
         }
     }
 
@@ -215,7 +211,7 @@ async function getStudentsByVaccinationStatus(vaccinationStatus) {
 async function getStudentsByVaccineName(vaccineName) {
     const db = await mongoDBClient.client;
     const collection = db.collection("students");
-    const students = await collection.find({ vaccinations: { $elemMatch: {vaccineName:vaccineName} }} ,{projection:{name:1,gender:1,"vaccinations.vaccineName.$":1}}).toArray();
+    const students = await collection.find({ vaccinations: { $elemMatch: {vaccineName:vaccineName} }} ,{projection:{name:1,gender:1,"vaccinations.$":1}}).toArray();
     let message = {};
     if (students.length > 0) {
         console.log("Students retrieved successfully");
