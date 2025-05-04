@@ -8,6 +8,7 @@ info:
 servers:
   - url: http://localhost:3001
     description: Development server
+
 paths:
   /login:
     get:
@@ -30,6 +31,11 @@ paths:
       responses:
         '200':
           description: Login successful
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Login Successful"
         '401':
           description: Unauthorized login
           content:
@@ -50,7 +56,7 @@ paths:
             schema:
               $ref: '#/components/schemas/StudentInput'
       responses:
-        '200':
+        '201':
           description: Student inserted successfully
           content:
             application/json:
@@ -119,6 +125,19 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Student'
+        '404':
+          description: No students found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "data not found"
         '400':
           description: Validation error
           content:
@@ -251,6 +270,10 @@ paths:
                   error:
                     type: string
                     example: "Duplicate vaccination found"
+                  errors:
+                    type: array
+                    items:
+                      type: string
         '404':
           description: Student not found
           content:
@@ -267,9 +290,16 @@ paths:
         '500':
           description: Internal server error
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Failed to update vaccination status"
                 
   /students/bulk:
     post:
@@ -299,9 +329,10 @@ paths:
                     type: boolean
                     example: true
                   data:
-                    type: object
-                    additionalProperties:
+                    type: array
+                    items:
                       type: string
+                      example: "075497"
         '400':
           description: Validation errors in the CSV file
           content:
@@ -333,7 +364,7 @@ paths:
             schema:
               $ref: '#/components/schemas/VaccinationDriveInput'
       responses:
-        '200':
+        '201':
           description: Vaccination drive created
           content:
             application/json:
@@ -373,7 +404,7 @@ paths:
                 type: string
                 
     get:
-      summary: Get all vaccination drives
+      summary: Get all vaccination drives with optional filters
       tags:
         - Vaccination Drives
       parameters:
@@ -382,6 +413,11 @@ paths:
           schema:
             type: string
           description: Filter by vaccination drive name
+        - name: class
+          in: query
+          schema:
+            type: string
+          description: Filter by class number
       responses:
         '200':
           description: List of vaccination drives
@@ -397,6 +433,19 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/VaccinationDrive'
+        '404':
+          description: No vaccination drives found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "data not found"
         '500':
           description: Internal server error
           content:
@@ -457,6 +506,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationError'
+        '404':
+          description: Vaccination drive not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "data not found"
         '500':
           description: Internal server error
           content:
@@ -502,48 +564,6 @@ paths:
         '500':
           description: Internal server error
           content:
-            text/plain:
-              schema:
-                type: string
-                
-  /reports/students:
-    get:
-      summary: Generate student vaccination report
-      tags:
-        - Reports
-      parameters:
-        - name: vaccineName
-          in: query
-          required: true
-          schema:
-            type: string
-          description: Name of vaccine to filter by
-        - name: reportType
-          in: query
-          required: true
-          schema:
-            type: string
-            enum: [csv, pdf, excel]
-          description: Report format type
-      responses:
-        '200':
-          description: Report file
-          content:
-            text/csv:
-              schema:
-                type: string
-                format: binary
-            application/pdf:
-              schema:
-                type: string
-                format: binary
-            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
-              schema:
-                type: string
-                format: binary
-        '404':
-          description: No students found for the specified vaccine
-          content:
             application/json:
               schema:
                 type: object
@@ -553,13 +573,7 @@ paths:
                     example: false
                   error:
                     type: string
-                    example: "data not found"
-        '500':
-          description: Internal server error
-          content:
-            text/plain:
-              schema:
-                type: string
+                    example: "Failed to retrieve dashboard overview"
 
 components:
   schemas:

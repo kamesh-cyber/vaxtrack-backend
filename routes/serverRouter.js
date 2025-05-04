@@ -18,7 +18,6 @@ const {updateVaccinationDrive} = require("../controller/VaccinationController");
 
 const {getDashboardOverview} = require("../controller/DashboardController.js");
 
-const {generateStudentReport} = require("../controller/ReportController.js");
 
 const {
     validateLogin,
@@ -48,6 +47,5 @@ router.patch('/vaccinations/:id',updateVaccinationDrive)
 
 router.get('/dashboard/overview',getDashboardOverview)
 
-// router.get('/reports/students',generateStudentReport)
 
 module.exports = router
