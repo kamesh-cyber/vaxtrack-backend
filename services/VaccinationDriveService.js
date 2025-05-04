@@ -141,10 +141,33 @@ async function getVaccinationDriveByName(name) {
     return message
 }
 
+async function getVaccinationDriveByClass(className) {
+    const db = await mongoDBClient.client;
+    const collection = db.collection("vaccination_drives");
+    const vaccinationDrive = await collection.find({ classes: className }).toArray();
+    let message = {};
+    if (vaccinationDrive.length > 0) {
+        console.log("Vaccination drive retrieved successfully");
+        message = {
+            statusCode: status_codes.OK,
+            success: true,
+            data: vaccinationDrive,
+        };
+    } else {
+        console.log("Vaccination drive not found");
+        message = {
+            statusCode: status_codes.NOT_FOUND,
+            success: false,
+            error: "data not found",
+        };
+    }
+    return message
+}
 
 module.exports = {
     getAllVaccinationDrives,
     insertVaccinationDrive,
     updateVaccinationDrive,
-    getVaccinationDriveByName
+    getVaccinationDriveByName,
+    getVaccinationDriveByClass
 }

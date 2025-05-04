@@ -1,5 +1,5 @@
 
-const { getAllVaccinationDrives,insertVaccinationDrive ,updateVaccinationDrive,getVaccinationDriveByName} = require('../services/VaccinationDriveService');
+const { getAllVaccinationDrives,insertVaccinationDrive ,updateVaccinationDrive,getVaccinationDriveByName,getVaccinationDriveByClass} = require('../services/VaccinationDriveService');
 const insert = async (req, res) => {
     try {
         console.log('Inserting vaccination drive:');
@@ -15,6 +15,12 @@ const getAll = async (req, res) => {
         if(req.query.name){
             console.log('Getting vaccination drive by name:',req.query.name)
             const response = await getVaccinationDriveByName(req.query.name);
+            res.status(response.statusCode).send(response);
+            return
+        }
+        if (req.query.class){
+            console.log('Getting vaccination drive by class:',req.query.class)
+            const response = await getVaccinationDriveByClass(req.query.class);
             res.status(response.statusCode).send(response);
             return
         }
