@@ -20,7 +20,7 @@ async function getAllVaccinationDrives(req) {
         message = {
             statusCode: status_codes.NOT_FOUND,
             success: false,
-            error: "data not found",
+            error: "No Vaccination Drives found",
         };
     }
     return message
@@ -113,7 +113,7 @@ async function getVacccinationDriveById (id) {
         message = {
             statusCode: status_codes.NOT_FOUND,
             success: false,
-            error: "data not found",
+            error: `No Vaccination Drive exists for ${id}`,
         };
     }
     return message
@@ -135,7 +135,7 @@ async function getVaccinationDriveByName(name) {
         message = {
             statusCode: status_codes.NOT_FOUND,
             success: false,
-            error: "data not found",
+            error: `No Vaccination drive exist for ${name}`,
         };
     }
     return message
@@ -158,7 +158,7 @@ async function getVaccinationDriveByClass(className) {
         message = {
             statusCode: status_codes.NOT_FOUND,
             success: false,
-            error: "data not found",
+            error: `No Vaccination drives found for grade ${className}`
         };
     }
     return message

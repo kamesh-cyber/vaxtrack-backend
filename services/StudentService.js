@@ -23,7 +23,7 @@ async function getAllStudents(req) {
         message = {
             statusCode: status_codes.NOT_FOUND,
             success: false,
-            error: "data not found",
+            error: `No students found`,
         };
     }
     return message
@@ -81,7 +81,7 @@ async function getStudentById(req, id) {
         message = {
             statusCode: status_codes.NOT_FOUND,
             success: false,
-            error: "Student not found",
+            error: `Student not found with id ${id}`,
         };
     }
     return message
@@ -107,7 +107,7 @@ async function getStudentsByClass(req, className) {
         message = {
             statusCode: status_codes.NOT_FOUND,
             success: false,
-            error: "data not found",
+            error: `No student found in class ${className}`
         };
     }
     return message
@@ -132,7 +132,7 @@ async function getStudentsByName(req, name) {
         message = {
             statusCode: status_codes.NOT_FOUND,
             success: false,
-            error: "data not found",
+            error: "No student exist",
         };
     }
     return message
@@ -184,7 +184,7 @@ async function updateStudentVaccinationStatus(body,id) {
         message = {
             statusCode:status_codes.NOT_FOUND,
             success: false,
-            error: "Student not found",
+            error: `No Student with id ${id}`,
         };
     }
     return message
@@ -236,7 +236,7 @@ async function getStudentsByVaccinationStatus(req,vaccinationStatus) {
         message = {
             statusCode: status_codes.NOT_FOUND,
             success: false,
-            error: "data not found",
+            error: `No student found with vaccination status ${vaccinationStatus}`,
         };
     }
     return message
@@ -261,7 +261,7 @@ async function getStudentsByVaccineName(req,vaccineName) {
         message = {
             statusCode: status_codes.NOT_FOUND,
             success: false,
-            error: "data not found",
+            error: `No students vaccinated for ${vaccineName}`
         };
     }
     return message
