@@ -15,6 +15,10 @@ const insert = async (req, res) => {
 }
 const getAll = async (req, res) => {
     try {
+        const offset = parseInt(req.query.offset) || 0;
+        const limit = parseInt(req.query.limit) || 10;
+        req.offset = offset
+        req.limit = limit;
         if(req.query.class){
             console.log('Getting students by class:',req.query)
             grade = parseInt(req.query.class)
@@ -30,17 +34,17 @@ const getAll = async (req, res) => {
         }
         if(req.query.vaccinationStatus){
             console.log('Getting students by vaccination status:',req.query)
-            const response = await getStudentsByVaccinationStatus(req.query.vaccinationStatus);
+            const response = await getStudentsByVaccinationStatus(req,req.query.vaccinationStatus);
             res.status(response.statusCode).send(response);
             return
         }
         if(req.query.vaccineName){
             console.log('Getting students by vaccine name:',req.query)
-            const response = await getStudentsByVaccineName(req.query.vaccineName);
+            const response = await getStudentsByVaccineName(req,req.query.vaccineName);
             res.status(response.statusCode).send(response);
             return
         }
-        console.log('Getting all students:');
+        console.log('Getting all students:' ,req.limit);
         const response = await getAllStudents(req);
         res.status(response.statusCode).send(response);
     } catch (error) {

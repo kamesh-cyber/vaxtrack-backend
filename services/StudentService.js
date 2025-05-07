@@ -6,7 +6,10 @@ const status_codes = require('../helpers/statusCode');
 async function getAllStudents(req) {
     const db = await mongoDBClient.client;
     const collection = db.collection("students");
-    const students = await collection.find({}).toArray();
+    const offset = req.offset;
+    const limit = req.limit;
+    const sort  = {_id: 1}
+    const students = await collection.find().sort(sort).limit(limit).skip(offset).toArray();
     let message = {};
     if (students.length > 0) {
         console.log("Students retrieved successfully");
@@ -84,9 +87,13 @@ async function getStudentById(req, id) {
     return message
 }
 async function getStudentsByClass(req, className) {
+    const offset = req.offset;
+    const limit = req.limit;
+    const sort  = {_id: 1}
+
     const db = await mongoDBClient.client;
     const collection = db.collection("students");
-    const students = await collection.find({ class: className }).toArray();
+    const students = await collection.find({ class: className }).sort(sort).skip(offset).limit(limit).toArray();
     let message = {};
     if (students.length > 0) {
         console.log("Students retrieved successfully");
@@ -106,19 +113,24 @@ async function getStudentsByClass(req, className) {
     return message
 }
 async function getStudentsByName(req, name) {
+    const offset = req.offset
+    const limit  = req.limit
+    const sort   = {_id:1}
     const db = await mongoDBClient.client;
     const collection = db.collection("students");
-    const students = await collection.find({ name: { $regex: name, $options: "i" } }).toArray();
+    const students = await collection.find({ name: { $regex: name, $options: "i" } }).sort(sort).limit(limit).skip(offset).toArray();
     let message = {};
     if (students.length > 0) {
         console.log("Students retrieved successfully");
         message = {
+            statusCode: status_codes.OK,
             success: true,
             data: students,
         };
     } else {
         console.log("No students found");
         message = {
+            statusCode: status_codes.NOT_FOUND,
             success: false,
             error: "data not found",
         };
@@ -203,11 +215,14 @@ async function bulkInsertStudents(dataToInsert) {
 
     
 }
-async function getStudentsByVaccinationStatus(vaccinationStatus) {
+async function getStudentsByVaccinationStatus(req,vaccinationStatus) {
+    const offset = req.offset
+    const limit = req.limit
+    const sort = {_id:1}
     const db = await mongoDBClient.client;
     const collection = db.collection("students");
     vaccinationStatus = vaccinationStatus === "true" ? true : false;
-    const students = await collection.find({ "vaccinations": {$exists: vaccinationStatus} }).toArray();
+    const students = await collection.find({ "vaccinations": {$exists: vaccinationStatus} }).sort(sort).limit(limit).skip(offset).toArray();
     let message = {};
     if (students.length > 0) {
         console.log("Students retrieved successfully");
@@ -226,10 +241,13 @@ async function getStudentsByVaccinationStatus(vaccinationStatus) {
     }
     return message
 }
-async function getStudentsByVaccineName(vaccineName) {
+async function getStudentsByVaccineName(req,vaccineName) {
+    const limit = req.limit
+    const offset = req.offset
+    const sort = {_id:1}
     const db = await mongoDBClient.client;
     const collection = db.collection("students");
-    const students = await collection.find({ vaccinations: { $elemMatch: {vaccineName:vaccineName} }} ,{projection:{name:1,gender:1,"vaccinations.$":1}}).toArray();
+    const students = await collection.find({ vaccinations: { $elemMatch: {vaccineName:vaccineName} }} ,{projection:{name:1,gender:1,"vaccinations.$":1}}).sort(sort).skip(offset).limit(limit).toArray();
     let message = {};
     if (students.length > 0) {
         console.log("Students retrieved successfully");
