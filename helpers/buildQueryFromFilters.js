@@ -9,7 +9,8 @@ const buildQueryFromFilters = (filters) => {
     }
 
     if (filters.vaccinationStatus) {
-        query.where.vaccinations = {$exists: filters.vaccinationStatus}
+        const vaccinationStatus = filters.vaccinationStatus === "true" ? true : false;
+        query.where.vaccinations = {$exists: vaccinationStatus}
     }
     if (filters.vaccineName) {
         query.where.vaccinations = {$elemMatch: {vaccineName:filters.vaccineName}}
