@@ -273,7 +273,7 @@ async function getReportsByFilters(req, query) {
     const offset = req.offset
     const limit = req.limit
     const sort = {_id:1}
-    const students = await collection.find(query.where,{projection:{name:1,gender:1,"vaccinations.$":1}}).sort(sort).limit(limit).skip(offset).toArray();
+    const students = await collection.find(query.where,{projection:{class:1,name:1,gender:1,"vaccinations.$":1}}).sort(sort).limit(limit).skip(offset).toArray();
     let message = {};
     if (students.length > 0) {
         console.log("Students retrieved successfully");
