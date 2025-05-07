@@ -1,8 +1,10 @@
-const { parse } = require('dotenv');
-const { get } = require('../routes/serverRouter');
-const { getAllStudents, getStudentById, insertStudent, getStudentsByClass
-    , getStudentsByName, updateStudentVaccinationStatus,bulkInsertStudents,getStudentsByVaccinationStatus,getStudentsByVaccineName} = require('../services/StudentService');
+const { getAllStudents, getStudentById, insertStudent, getStudentsByClass, getStudentsByName, 
+        updateStudentVaccinationStatus,bulkInsertStudents,getStudentsByVaccinationStatus,
+        getStudentsByVaccineName,getReportsByFilters} = require('../services/StudentService');
+
 const {validateAndConvertCSVFile}  = require('../helpers/validateAndConvertCSVFile')
+const {buildQueryFromFilters} = require("../helpers/buildQueryFromFilters");
+
 const insert = async (req, res) => {
     try {
         console.log('Inserting student:');
@@ -87,11 +89,42 @@ async function bulkInsert(req, res) {
         res.status(500).send("Internal Server Error");
     }
 }
+
+const getReports = async (req, res) => {
+    try {
+
+        const offset = parseInt(req.query.offset) || 0;
+        const limit = parseInt(req.query.limit) || 10;
+        req.offset = offset
+        req.limit = limit;
+
+        console.log('Getting reports:', req.query);
+        const filters = {
+            class: req.query.class,
+            vaccinationStatus: req.query.vaccinationStatus,
+            vaccineName: req.query.vaccineName,
+        };
+
+
+        const query = buildQueryFromFilters(filters);
+        console.log('Query:', query);
+
+        const response = await getReportsByFilters(req, query);
+        res.status(response.statusCode).send(response);
+
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+}
+
 module.exports = {
     insertStudent: insert,
     getAllStudents: getAll,
     getStudentById: getById,
     updateStudent: update,
-    bulkInsertStudents: bulkInsert
+    bulkInsertStudents: bulkInsert,
+    getReportsByStudent: getReports
     
 }

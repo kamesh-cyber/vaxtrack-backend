@@ -267,6 +267,31 @@ async function getStudentsByVaccineName(req,vaccineName) {
     return message
 }
 
+async function getReportsByFilters(req, query) {
+    const db = await mongoDBClient.client;
+    const collection = db.collection("students");
+    const offset = req.offset
+    const limit = req.limit
+    const sort = {_id:1}
+    const students = await collection.find(query.where).sort(sort).limit(limit).skip(offset).toArray();
+    let message = {};
+    if (students.length > 0) {
+        console.log("Students retrieved successfully");
+        message = {
+            statusCode: status_codes.OK,
+            success: true,
+            data: students,
+        };
+    } else {
+        console.log("No students found");
+        message = {
+            statusCode: status_codes.NOT_FOUND,
+            success: false,
+            error: `No students found`,
+        };
+    }
+    return message
+}
 module.exports = {
     insertStudent,
     getAllStudents,
@@ -276,5 +301,6 @@ module.exports = {
     updateStudentVaccinationStatus,
     bulkInsertStudents,
     getStudentsByVaccinationStatus,
-    getStudentsByVaccineName
+    getStudentsByVaccineName,
+    getReportsByFilters
 };

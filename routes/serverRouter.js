@@ -11,6 +11,7 @@ const {getAllStudents} = require("../controller/StudentController");
 const {getStudentById} = require("../controller/StudentController");
 const {updateStudent} = require("../controller/StudentController");
 const {bulkInsertStudents} = require("../controller/StudentController");
+const {getReportsByStudent} = require("../controller/StudentController");
 
 const {getAllVaccinationDrives} = require("../controller/VaccinationController");
 const {insertVaccinationDrive} = require("../controller/VaccinationController");
@@ -26,7 +27,8 @@ const {
     validateUpdateVaccinationStatus,
     validateBulkInsertFile,
     validateVaccinationDrive,
-    validateGetAllStudents
+    validateGetAllStudents,
+    validateStudentReport,
   } = require("../middleware/validators");
 
 router.get('/login',validateLogin,login)
@@ -35,8 +37,7 @@ router.get('/login',validateLogin,login)
 router.post('/students',validateInsertStudent,insertStudent)
 
 router.get('/students',validateGetAllStudents,getAllStudents)
-router.get('/students/:id',validateStudentId,getStudentById)
-
+router.get('/students/reports',validateStudentReport,getReportsByStudent)
 router.patch('/students/:id/vaccinate',validateUpdateVaccinationStatus,updateStudent)
 router.post('/students/bulk',upload.single('file'),validateBulkInsertFile,bulkInsertStudents)
 
@@ -46,6 +47,8 @@ router.post('/vaccinations',validateVaccinationDrive,insertVaccinationDrive)
 router.patch('/vaccinations/:id',updateVaccinationDrive)
 
 router.get('/dashboard/overview',getDashboardOverview)
+
+router.get('/students/:id',validateStudentId,getStudentById)
 
 
 module.exports = router
