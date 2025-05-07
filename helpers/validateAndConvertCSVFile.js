@@ -16,6 +16,10 @@ function validateAndConvertCSVFile(file) {
                 // Validate headers
                 const headers = Object.keys(data);
                 console.log('Headers:', headers);
+                if (isEmptyRow(data)) {
+                    console.log('Skipping empty row');
+                    return; // Skip empty rows
+                }
                 if (!validHeaders.every(header => headers.includes(header))) {
                     errors.push(`Invalid headers in row: ${JSON.stringify(data)}`);
                     return;
@@ -54,6 +58,17 @@ function validateAndConvertCSVFile(file) {
             .on('error', (error) => {
                 reject([`Error reading file: ${error.message}`]);
             });
+    });
+}
+function isEmptyRow(data) {
+    console.log('Checking if row is empty:', data.length);
+    if (Object.keys(data).length === 0) return true;
+    
+    // Check if all values are empty strings or only whitespace
+    return Object.values(data).every(value => {
+        return value === undefined || 
+               value === null || 
+               value.toString().trim() === '';
     });
 }
 module.exports = {
