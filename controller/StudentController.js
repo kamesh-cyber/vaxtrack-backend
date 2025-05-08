@@ -18,7 +18,7 @@ const insert = async (req, res) => {
 const getAll = async (req, res) => {
     try {
         const offset = parseInt(req.query.offset) || 0;
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = parseInt(req.query.limit) || 0;
         req.offset = offset
         req.limit = limit;
         if(req.query.class){
@@ -94,7 +94,7 @@ const getReports = async (req, res) => {
     try {
 
         const offset = parseInt(req.query.offset) || 0;
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = parseInt(req.query.limit) || 0;
         req.offset = offset
         req.limit = limit;
 

@@ -2,6 +2,8 @@ const { getAllStudents } = require("./StudentService");
 const { getAllVaccinationDrives } = require("./VaccinationDriveService");
 
 async function getDashboardOverviewService(req) {   
+    req.limit = 0;
+    req.offset = 0;
     const students = await getAllStudents(req);
     const vaccinationDrives = await getAllVaccinationDrives(req);
     let numberOfStudentsVaccinated = 0

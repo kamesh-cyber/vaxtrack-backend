@@ -2,12 +2,16 @@ const mongoDBClient = require('../services/MongoDBService.js')
 const mongo = require('mongodb');
 const {checkForSchedulingConflicts} = require('../helpers/checkForSchedulingConflicts')
 const status_codes = require('../helpers/statusCode')
+const {addActiveStatus} = require('../helpers/addActiveStatus');
 
 async function getAllVaccinationDrives(req) {
     const  db = await mongoDBClient.client;
     const collection = db.collection("vaccination_drives");
-    const vaccinationDrives = await collection.find({}).toArray();
+    const sort = {scheduled_date: 1}
+    const currentDate = new Date();
+    let vaccinationDrives = await collection.find({}).sort(sort).toArray();
     let message = {};
+    vaccinationDrives = addActiveStatus(vaccinationDrives);
     if (vaccinationDrives.length > 0) {
         console.log("Vaccination drives retrieved successfully");
         message = {
@@ -121,8 +125,9 @@ async function getVacccinationDriveById (id) {
 async function getVaccinationDriveByName(name) {
     const db = await mongoDBClient.client;
     const collection = db.collection("vaccination_drives");
-    const vaccinationDrive = await collection.find  ({ name: name }).toArray();
+    let vaccinationDrive = await collection.find  ({ name: name }).toArray();
     let message = {}; 
+    vaccinationDrive = addActiveStatus(vaccinationDrive);
     if (vaccinationDrive.length > 0) {
         console.log("Vaccination drive retrieved successfully");
         message = {
@@ -144,7 +149,8 @@ async function getVaccinationDriveByName(name) {
 async function getVaccinationDriveByClass(className) {
     const db = await mongoDBClient.client;
     const collection = db.collection("vaccination_drives");
-    const vaccinationDrive = await collection.find({ classes: className }).toArray();
+    let vaccinationDrive = await collection.find({ classes: className }).toArray();
+    vaccinationDrive = addActiveStatus(vaccinationDrive);
     let message = {};
     if (vaccinationDrive.length > 0) {
         console.log("Vaccination drive retrieved successfully");
