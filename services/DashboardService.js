@@ -2,9 +2,10 @@ const { getAllStudents } = require("./StudentService");
 const { getAllVaccinationDrives } = require("./VaccinationDriveService");
 
 async function getDashboardOverviewService(req) {   
-    req.limit = 0;
+    req.limit = 100;
     req.offset = 0;
     const students = await getAllStudents(req);
+    console.log("Students retrieved successfully");
     const vaccinationDrives = await getAllVaccinationDrives(req);
     let numberOfStudentsVaccinated = 0
     numberOfStudentsVaccinated = students.data.filter(student => student.vaccinations).length;
@@ -23,13 +24,13 @@ async function getDashboardOverviewService(req) {
     }
 
     let message = {};
-    if (students.success && vaccinationDrives.success) {
+    if (students.success) {
         console.log("Dashboard overview retrieved successfully");
         message = {
             success: true,
             data: {
                 totalStudents: students.data.length,
-                totalVaccinationDrives: vaccinationDrives.data.length,
+                totalVaccinationDrives: vaccinationDrives?.data?.length,
                 numberOfStudentsVaccinated: numberOfStudentsVaccinated,
                 percentageOfStudentsVaccinated: percentageOfStudentsVaccinated,
                 upcomingDrives:upcomingDrives

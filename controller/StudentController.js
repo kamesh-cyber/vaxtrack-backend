@@ -1,6 +1,7 @@
 const { getAllStudents, getStudentById, insertStudent, getStudentsByClass, getStudentsByName, 
         updateStudentVaccinationStatus,bulkInsertStudents,getStudentsByVaccinationStatus,
-        getStudentsByVaccineName,getReportsByFilters} = require('../services/StudentService');
+        getStudentsByVaccineName,getReportsByFilters,
+        getStudentsWithLimit} = require('../services/StudentService');
 
 const {validateAndConvertCSVFile}  = require('../helpers/validateAndConvertCSVFile')
 const {buildQueryFromFilters} = require("../helpers/buildQueryFromFilters");
@@ -21,6 +22,7 @@ const getAll = async (req, res) => {
         const limit = parseInt(req.query.limit) || 0;
         req.offset = offset
         req.limit = limit;
+        console.log('Getting all students:', req.query);
         if(req.query.class){
             console.log('Getting students by class:',req.query)
             grade = parseInt(req.query.class)
@@ -47,7 +49,7 @@ const getAll = async (req, res) => {
             return
         }
         console.log('Getting all students:' ,req.limit);
-        const response = await getAllStudents(req);
+        const response = await getStudentsWithLimit(req);
         res.status(response.statusCode).send(response);
     } catch (error) {
         console.error(error);

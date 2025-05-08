@@ -3,12 +3,14 @@ const mongo = require('mongodb');
 const {checkForSchedulingConflicts} = require('../helpers/checkForSchedulingConflicts')
 const status_codes = require('../helpers/statusCode')
 const {addActiveStatus} = require('../helpers/addActiveStatus');
+const { capitalizeFirstLetter } = require('../helpers/capitalizeFirstLetter.js');
 
 async function getAllVaccinationDrives(req) {
     const  db = await mongoDBClient.client;
     const collection = db.collection("vaccination_drives");
     const sort = {scheduled_date: 1}
-    const currentDate = new Date();
+    const limit = req.limit 
+    const offset = req.offset
     let vaccinationDrives = await collection.find({}).sort(sort).toArray();
     let message = {};
     vaccinationDrives = addActiveStatus(vaccinationDrives);
@@ -17,7 +19,50 @@ async function getAllVaccinationDrives(req) {
         message = {
             statusCode: status_codes.OK,
             success: true,
+            data: vaccinationDrives
+        };
+    } else {
+        console.log("No vaccination drives found");
+        message = {
+            statusCode: status_codes.NOT_FOUND,
+            success: false,
+            error: "No Vaccination Drives found",
+        };
+    }
+    return message
+}
+async function getVaccinationDriveWithLimit(req) {
+    const  db = await mongoDBClient.client;
+    const collection = db.collection("vaccination_drives");
+    const sort = {scheduled_date: 1}
+    const limit = req.limit 
+    const offset = req.offset
+    // let vaccinationDrives = await collection.find({}).sort(sort).toArray();
+    const result = await collection.aggregate([
+        {
+            $facet: {
+                paginatedResults: [
+                    { $sort: sort },
+                    { $skip: offset },
+                    { $limit: limit }
+                ],
+                totalCount: [
+                    { $count: 'count' }
+                ]
+            }
+        }
+    ]).toArray();
+    let vaccinationDrives = result[0].paginatedResults;
+    const totalCount = result[0].totalCount.length > 0 ? result[0].totalCount[0].count : 0;
+    let message = {};
+    vaccinationDrives = addActiveStatus(vaccinationDrives);
+    if (vaccinationDrives.length > 0) {
+        console.log("Vaccination drives retrieved successfully");
+        message = {
+            statusCode: status_codes.OK,
+            success: true,
             data: vaccinationDrives,
+            totalCount: totalCount,
         };
     } else {
         console.log("No vaccination drives found");
@@ -32,7 +77,7 @@ async function getAllVaccinationDrives(req) {
 async function insertVaccinationDrive (req, drive) {
     const db = await mongoDBClient.client;
     const collection = db.collection("vaccination_drives");
-    // drive
+    drive.name = capitalizeFirstLetter(drive.name);
     drive.created_on = new Date();
     drive.updated_on = new Date();
     drive["scheduled_date"] = new Date(drive["scheduled_date"]);
@@ -189,5 +234,6 @@ module.exports = {
     insertVaccinationDrive,
     updateVaccinationDrive,
     getVaccinationDriveByName,
-    getVaccinationDriveByClass
+    getVaccinationDriveByClass,
+    getVaccinationDriveWithLimit
 }

@@ -3,11 +3,12 @@ const {checkForDuplicateVaccinations} = require('../helpers/checkForDuplicateVac
 const {generateRollNumber} = require('../helpers/generateRollNumber');
 const status_codes = require('../helpers/statusCode');
 
+
 async function getAllStudents(req) {
     const db = await mongoDBClient.client;
     const collection = db.collection("students");
-    const offset = req.offset;
-    const limit = req.limit;
+    const offset = req.offset || 0;
+    const limit = req.limit || 1;
     const sort  = {_id: 1}
     const students = await collection.find().sort(sort).limit(limit).skip(offset).toArray();
     let message = {};
@@ -17,6 +18,49 @@ async function getAllStudents(req) {
             statusCode: status_codes.OK,
             success: true,
             data: students,
+        };
+    } else {
+        console.log("No students found");
+        message = {
+            statusCode: status_codes.NOT_FOUND,
+            success: false,
+            error: `No students found`,
+        };
+    }
+    return message
+}
+
+async function getStudentsWithLimit(req) {
+    const db = await mongoDBClient.client;
+    const collection = db.collection("students");
+    const offset = req.offset || 0;
+    const limit = req.limit || 1;
+    const sort  = {_id: 1}
+    // const students = await collection.find().sort(sort).limit(limit).skip(offset).toArray();
+    const result = await collection.aggregate([
+        {
+            $facet: {
+                paginatedResults: [
+                    { $sort: { _id: 1 } },
+                    { $skip: offset },
+                    { $limit: limit }
+                ],
+                totalCount: [
+                    { $count: 'count' }
+                ]
+            }
+        }
+    ]).toArray();
+    const students = result[0].paginatedResults;
+    const totalCount = result[0].totalCount.length > 0 ? result[0].totalCount[0].count : 0;
+    let message = {};
+    if (students.length > 0) {
+        console.log("Students retrieved successfully");
+        message = {
+            statusCode: status_codes.OK,
+            success: true,
+            data: students,
+            totalCount: totalCount,
         };
     } else {
         console.log("No students found");
@@ -302,5 +346,6 @@ module.exports = {
     bulkInsertStudents,
     getStudentsByVaccinationStatus,
     getStudentsByVaccineName,
-    getReportsByFilters
+    getReportsByFilters,
+    getStudentsWithLimit
 };
