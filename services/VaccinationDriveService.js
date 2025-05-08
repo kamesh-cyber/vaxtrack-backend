@@ -87,7 +87,7 @@ async function updateVaccinationDrive (id, drive) {
         message = {
             statusCode: status_codes.OK,
             success: true,
-            data: result,
+            data: `Vaccination drive ${id} updated successfully`,
         };
     } else {
         console.log("Vaccination drive update failed");
