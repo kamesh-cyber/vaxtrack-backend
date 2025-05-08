@@ -32,9 +32,9 @@ async function getAllVaccinationDrives(req) {
 async function insertVaccinationDrive (req, drive) {
     const db = await mongoDBClient.client;
     const collection = db.collection("vaccination_drives");
+    // drive
     drive.created_on = new Date();
     drive.updated_on = new Date();
-    // drive.created_by = req.user.username;
     drive["scheduled_date"] = new Date(drive["scheduled_date"]);
     const vaccinationData = await collection.find({scheduled_date: drive.scheduled_date},{projection:["classes"]}).toArray();
     const conflict = checkForSchedulingConflicts(vaccinationData,drive)
@@ -77,6 +77,20 @@ async function updateVaccinationDrive (id, drive) {
     if(drive["available_doses"]){
         updateBody["available_doses"] = drive["available_doses"];
     }
+    if(drive["classes"]){
+        updateBody["classes"] = drive["classes"];
+    }
+    const vaccinationData = await collection.find({scheduled_date: updateBody.scheduled_date},{projection:["classes"]}).toArray();
+    console.log('vaccinationData '+ JSON.stringify(vaccinationData))
+    const conflict = checkForSchedulingConflicts(vaccinationData,updateBody)
+    if(conflict){
+        return {
+            statusCode: status_codes.BAD_REQUEST,
+            success: false,
+            error: "Drive already exists for classes: " + conflict.join(", "),
+        };
+    }
+
     const result = await collection.updateOne(
         { _id: new mongo.ObjectId(id) },
         { $set: updateBody }

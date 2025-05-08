@@ -120,8 +120,8 @@ const validateLogin = (req, res, next) => {
     if (available_doses && (isNaN(available_doses) || !Number.isInteger(Number(available_doses)))) {
         errors.push("Invalid data type: available_doses must be an integer");
     }
-    if(classes && !Array.isArray(classes)){
-        errors.push("Invalid data type: classes must be an array");
+    if(classes && classes.length <= 0){
+        errors.push("Choose atleast one class");
     }
     if (name && typeof name !== 'string') errors.push("Invalid data type: name must be a string");
     
@@ -137,7 +137,7 @@ const validateLogin = (req, res, next) => {
             let minimumDate = new Date()
             minimumDate.setDate(today.getDate() + 15);
             if(scheduledDate < minimumDate){
-                errors.push("Invalid date: must be at least 15 days from today");
+                errors.push("Invalid date: date must be at least 15 days from today");
             }
         }
       } catch (e) {
@@ -172,7 +172,7 @@ const validateLogin = (req, res, next) => {
               let minimumDate = new Date()
               minimumDate.setDate(today.getDate() + 15);
               if(scheduledDate < minimumDate){
-                  errors.push("Invalid date: must be at least 15 days from today");
+                  errors.push("Invalid date: date must be at least 15 days from today");
               }
           }
         } catch (e) {
@@ -240,5 +240,6 @@ const validateLogin = (req, res, next) => {
     validateBulkInsertFile,
     validateVaccinationDrive,
     validateGetAllStudents,
-    validateStudentReport
+    validateStudentReport,
+    validateUpdateVaccinationDrive
   };
