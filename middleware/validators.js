@@ -162,7 +162,10 @@ const validateLogin = (req, res, next) => {
       }
       if (scheduled_date) {
         try {
+          console.log("scheduled_date",scheduled_date)
           const scheduledDate = new Date(scheduled_date);
+          console.log("scheduledDate",scheduledDate)
+          console.log("scheduledDate.getTime()",scheduledDate.getTime())
           if (isNaN(scheduledDate.getTime())) {
             errors.push("Invalid data type: date must be a valid date");
           }
@@ -170,6 +173,7 @@ const validateLogin = (req, res, next) => {
               const today =  new Date();
               let minimumDate = new Date()
               minimumDate.setDate(today.getDate() + 15);
+              console.log("minimumDate",minimumDate)
               if(scheduledDate < minimumDate){
                   errors.push("Invalid date: date must be at least 15 days from today");
               }

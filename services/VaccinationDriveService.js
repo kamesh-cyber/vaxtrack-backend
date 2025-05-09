@@ -207,8 +207,10 @@ async function getVaccinationDriveByName(name) {
 async function getVaccinationDriveByClass(className) {
     const db = await mongoDBClient.client;
     const collection = db.collection("vaccination_drives");
+    console.log('className: '+ className)
     let vaccinationDrive = await collection.find({ classes: className }).toArray();
     vaccinationDrive = addActiveStatus(vaccinationDrive);
+    console.log('vaccinationDrive: '+ JSON.stringify(vaccinationDrive))
     let message = {};
     if (vaccinationDrive.length > 0) {
         console.log("Vaccination drive retrieved successfully");

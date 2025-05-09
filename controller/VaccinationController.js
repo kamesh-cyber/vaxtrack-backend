@@ -1,4 +1,5 @@
 
+const { parse } = require('dotenv');
 const { getAllVaccinationDrives,insertVaccinationDrive ,updateVaccinationDrive,getVaccinationDriveByName,getVaccinationDriveByClass, getVaccinationDriveWithLimit} = require('../services/VaccinationDriveService');
 const insert = async (req, res) => {
     try {
@@ -24,7 +25,8 @@ const getAll = async (req, res) => {
         }
         if (req.query.class){
             console.log('Getting vaccination drive by class:',req.query.class)
-            const response = await getVaccinationDriveByClass(req.query.class);
+            const className = parseInt(req.query.class)
+            const response = await getVaccinationDriveByClass(className);
             res.status(response.statusCode).send(response);
             return
         }

@@ -33,19 +33,3 @@ The **VaxTrack App** is a backend service for managing student vaccination recor
    # Production mode
    npm start
    ```
-## API Endpoints
-
-| **Category**                     | **HTTP Method** | **Endpoint**                             | **Description**                                   |
-|----------------------------------|------------------|-----------------------------------------|---------------------------------------------------|
-| **Authentication**               | GET              | /login?code=<token>&user=<username>   | Verify user credentials                            |
-| **Student Management**           | POST             | /students                               | Add a new student                                 |
-|                                  | GET              | /students                               | Get all students                                  |
-|                                  | GET              | /students?class=<class>                | Filter students by class                          |
-|                                  | GET              | /students?name=<name>                  | Search students by name                           |
-|                                  | GET              | /students/:id                           | Get student by ID                                 |
-|                                  | PATCH            | /students/:id/vaccinate                | Update student vaccination status                 |
-|                                  | POST             | /students/bulk                          | Bulk import students via CSV file                 |
-| **Vaccination Drive Management** | POST             | /vaccinations                           | Create a new vaccination drive                    |
-|                                  | GET              | /vaccinations                           | Get all vaccination drives                         |
-|                                  | PATCH            | /vaccinations/:id                       | Update vaccination drive details                   |
-| **Dashboard**                    | GET              | /dashboard/overview                     | Get vaccination statistics and upcoming drives     |

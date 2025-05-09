@@ -48,19 +48,14 @@ const getAll = async (req, res) => {
             res.status(response.statusCode).send(response);
             return
         }
+        if(req.query.id) {
+            console.log('Getting student by ID:',req.query.id);
+            const response = await getStudentById(req, req.query.id);
+            res.status(response.statusCode).send(response);
+            return
+        }
         console.log('Getting all students:' ,req.limit);
         const response = await getStudentsWithLimit(req);
-        res.status(response.statusCode).send(response);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal Server Error");
-    }
-}
-
-const getById = async (req, res) => {
-    try {
-        console.log('Getting student by ID:',req.params.id);
-        const response = await getStudentById(req, req.params.id);
         res.status(response.statusCode).send(response);
     } catch (error) {
         console.error(error);
@@ -124,7 +119,6 @@ const getReports = async (req, res) => {
 module.exports = {
     insertStudent: insert,
     getAllStudents: getAll,
-    getStudentById: getById,
     updateStudent: update,
     bulkInsertStudents: bulkInsert,
     getReportsByStudent: getReports

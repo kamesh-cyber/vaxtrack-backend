@@ -8,7 +8,6 @@ const upload = multer({ dest: 'uploads/' }); // Files will be stored in the 'upl
 const {login} = require("../controller/LoginController");
 const {insertStudent} = require("../controller/StudentController");
 const {getAllStudents} = require("../controller/StudentController");
-const {getStudentById} = require("../controller/StudentController");
 const {updateStudent} = require("../controller/StudentController");
 const {bulkInsertStudents} = require("../controller/StudentController");
 const {getReportsByStudent} = require("../controller/StudentController");
@@ -23,7 +22,6 @@ const {getDashboardOverview} = require("../controller/DashboardController.js");
 const {
     validateLogin,
     validateInsertStudent,
-    validateStudentId,
     validateUpdateVaccinationStatus,
     validateBulkInsertFile,
     validateVaccinationDrive,
@@ -48,8 +46,5 @@ router.post('/vaccinations',validateVaccinationDrive,insertVaccinationDrive)
 router.patch('/vaccinations/:id',validateUpdateVaccinationDrive,updateVaccinationDrive)
 
 router.get('/dashboard/overview',getDashboardOverview)
-
-router.get('/students/:id',validateStudentId,getStudentById)
-
 
 module.exports = router
