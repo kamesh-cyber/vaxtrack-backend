@@ -37,7 +37,6 @@ async function getVaccinationDriveWithLimit(req) {
     const sort = {scheduled_date: 1}
     const limit = req.limit 
     const offset = req.offset
-    // let vaccinationDrives = await collection.find({}).sort(sort).toArray();
     const result = await collection.aggregate([
         {
             $facet: {

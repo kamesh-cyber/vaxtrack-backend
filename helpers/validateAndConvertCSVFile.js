@@ -13,7 +13,6 @@ function validateAndConvertCSVFile(file) {
             .pipe(csv())
             .on('data', (data) => {
                 console.log('Data:', data);
-                // Validate headers
                 const headers = Object.keys(data);
                 console.log('Headers:', headers);
                 if (isEmptyRow(data)) {
@@ -25,7 +24,6 @@ function validateAndConvertCSVFile(file) {
                     return;
                 }
 
-                // Validate data types
                 if (isNaN(data.age)) {
                     errors.push(`Invalid age in row: ${JSON.stringify(data)}`);
                     return;
@@ -64,7 +62,6 @@ function isEmptyRow(data) {
     console.log('Checking if row is empty:', data.length);
     if (Object.keys(data).length === 0) return true;
     
-    // Check if all values are empty strings or only whitespace
     return Object.values(data).every(value => {
         return value === undefined || 
                value === null || 

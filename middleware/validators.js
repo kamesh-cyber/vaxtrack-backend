@@ -57,7 +57,6 @@ const validateLogin = (req, res, next) => {
       return res.status(400).json({ error: "Missing student ID" });
     }
     
-    // Validate that ID matches the expected format (e.g., numeric ID with length 6)
     if (!/^\d{6}$/.test(id)) {
       return res.status(400).json({ error: "Invalid student ID format: must be a 6-digit number" });
     }

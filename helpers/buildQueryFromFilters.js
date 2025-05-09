@@ -1,4 +1,3 @@
-
 const buildQueryFromFilters = (filters) => {
     const query = {
         where: {}

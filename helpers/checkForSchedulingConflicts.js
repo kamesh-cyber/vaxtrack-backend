@@ -17,6 +17,6 @@ function checkForSchedulingConflicts(
       }
       
 }
-  return false; // No conflicts
+  return false; 
 }
 module.exports = {checkForSchedulingConflicts}

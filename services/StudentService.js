@@ -36,7 +36,6 @@ async function getStudentsWithLimit(req) {
     const offset = req.offset || 0;
     const limit = req.limit || 1;
     const sort  = {_id: 1}
-    // const students = await collection.find().sort(sort).limit(limit).skip(offset).toArray();
     const result = await collection.aggregate([
         {
             $facet: {

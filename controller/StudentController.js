@@ -1,4 +1,4 @@
-const { getAllStudents, getStudentById, insertStudent, getStudentsByClass, getStudentsByName, 
+const {getStudentById, insertStudent, getStudentsByClass, getStudentsByName, 
         updateStudentVaccinationStatus,bulkInsertStudents,getStudentsByVaccinationStatus,
         getStudentsByVaccineName,getReportsByFilters,
         getStudentsWithLimit} = require('../services/StudentService');

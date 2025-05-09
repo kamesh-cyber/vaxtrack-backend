@@ -6,7 +6,7 @@ const router = require("./routes/serverRouter");
 const app = express();
 const PORT = process.env.PORT || 3001;
 app.use(cors({
-    origin: '*', // For development only - restrict this in production
+    origin: '*', 
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
   }));
