@@ -12,8 +12,8 @@ The **VaxTrack App** is a backend service for managing student vaccination recor
 **Installation**
 1. Clone the repository
      ``` 
-        git clone <repository-url>
-        cd vaxtrack-app
+        git clone https://github.com/kamesh-cyber/vaxtrack-backend.git
+        cd vaxtrack-backend
         npm install
     ```
 2. Create a `.env` file in the root directory with the following variables:
