@@ -1,0 +1,331 @@
+openapi: 3.0.0
+info:
+  title: VaxTrack App API
+  version: 1.0.0
+  description: Backend API for managing student vaccinations and drives in schools.
+
+servers:
+  - url: http://localhost:3001
+
+paths:
+  /login:
+    get:
+      summary: Simulated login for school coordinator
+      tags: [Authentication]
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema: { type: string }
+        - name: user
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Unauthorized
+
+  /dashboard/overview:
+    get:
+      summary: Get dashboard metrics and upcoming drives
+      tags: [Dashboard]
+      responses:
+        '200':
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      totalStudents: { type: integer }
+                      totalVaccinationDrives: { type: integer }
+                      numberOfStudentsVaccinated: { type: integer }
+                      percentageOfStudentsVaccinated: { type: integer }
+                      upcomingDrives:
+                        type: array
+                        items: { $ref: '#/components/schemas/VaccinationDrive' }
+
+  /students:
+    post:
+      summary: Add a new student
+      tags: [Students]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StudentInput' }
+      responses:
+        '201':
+          description: Student inserted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  studentId: { type: string }
+        '400':
+          description: Validation error
+
+    get:
+      summary: Get students (with filters and pagination)
+      tags: [Students]
+      parameters:
+        - name: class
+          in: query
+          schema: { type: integer }
+        - name: name
+          in: query
+          schema: { type: string }
+        - name: vaccinationStatus
+          in: query
+          schema: { type: string, enum: [true, false] }
+        - name: vaccineName
+          in: query
+          schema: { type: string }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 10 }
+      responses:
+        '200':
+          description: List of students
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Student' }
+                  totalCount: { type: integer }
+        '400':
+          description: Validation error
+
+  /students/reports:
+    get:
+      summary: Generate student vaccination report
+      tags: [Reports]
+      parameters:
+        - name: class
+          in: query
+          schema: { type: integer }
+        - name: vaccinationStatus
+          in: query
+          schema: { type: string, enum: [true, false] }
+        - name: vaccineName
+          in: query
+          schema: { type: string }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 10 }
+      responses:
+        '200':
+          description: Report data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Student' }
+        '400':
+          description: Validation error
+
+  /students/{id}/vaccinate:
+    patch:
+      summary: Update student vaccination status
+      tags: [Students]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [vaccineName, vaccinatedOn]
+              properties:
+                vaccineName: { type: string }
+                vaccinatedOn: { type: string }
+      responses:
+        '200':
+          description: Vaccination status updated
+        '400':
+          description: Duplicate vaccination or validation error
+
+  /students/bulk:
+    post:
+      summary: Bulk import students from CSV
+      tags: [Students]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Students inserted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items: { type: string }
+        '400':
+          description: Validation error
+
+  /vaccinations:
+    post:
+      summary: Create a new vaccination drive
+      tags: [VaccinationDrives]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VaccinationDriveInput' }
+      responses:
+        '201':
+          description: Drive created
+        '400':
+          description: Validation error
+
+    get:
+      summary: Get all vaccination drives (with filters and pagination)
+      tags: [VaccinationDrives]
+      parameters:
+        - name: name
+          in: query
+          schema: { type: string }
+        - name: class
+          in: query
+          schema: { type: string }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 10 }
+      responses:
+        '200':
+          description: List of drives
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/VaccinationDrive' }
+                  totalCount: { type: integer }
+        '400':
+          description: Validation error
+
+  /vaccinations/{id}:
+    patch:
+      summary: Update vaccination drive
+      tags: [VaccinationDrives]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scheduled_date: { type: string }
+                available_doses: { type: integer }
+                classes:
+                  type: array
+                  items: { type: integer }
+      responses:
+        '200':
+          description: Drive updated
+        '400':
+          description: Validation error
+
+components:
+  schemas:
+    StudentInput:
+      type: object
+      required: [name, age, class, gender, dateOfBirth]
+      properties:
+        name: { type: string }
+        age: { type: integer }
+        class: { type: integer }
+        gender: { type: string, enum: [male, female] }
+        dateOfBirth: { type: string }
+
+    Student:
+      type: object
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        age: { type: integer }
+        class: { type: integer }
+        gender: { type: string }
+        dateOfBirth: { type: string }
+        vaccinations:
+          type: array
+          items:
+            type: object
+            properties:
+              vaccineName: { type: string }
+              vaccinatedOn: { type: string }
+        created_on: { type: string }
+        updated_on: { type: string }
+
+    VaccinationDriveInput:
+      type: object
+      required: [name, scheduled_date, available_doses, classes]
+      properties:
+        name: { type: string }
+        scheduled_date: { type: string }
+        available_doses: { type: integer }
+        classes:
+          type: array
+          items: { type: integer }
+
+    VaccinationDrive:
+      type: object
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        scheduled_date: { type: string }
+        available_doses: { type: integer }
+        classes:
+          type: array
+          items: { type: integer }
+        created_on: { type: string }
+        updated_on: { type: string }
+        active: { type: boolean }
