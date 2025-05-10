@@ -20,7 +20,7 @@ async function getDashboardOverviewService(req) {
         let today = new Date();
         let maximumDate = new Date()
         maximumDate.setDate(today.getDate() + 30);
-        upcomingDrives = vaccinationDrives.data.filter(drive => new Date(drive.scheduled_date) < maximumDate);
+        upcomingDrives = vaccinationDrives.data.filter(drive => (new Date(drive.scheduled_date) < maximumDate && new Date(drive.scheduled_date) > today));
     }
 
     let message = {};

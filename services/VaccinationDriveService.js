@@ -79,7 +79,9 @@ async function insertVaccinationDrive (req, drive) {
     drive.name = capitalizeFirstLetter(drive.name);
     drive.created_on = new Date();
     drive.updated_on = new Date();
-    drive["scheduled_date"] = new Date(drive["scheduled_date"]);
+    console.log('before drive: '+ JSON.stringify(drive))
+    drive.scheduled_date = new Date(drive["scheduled_date"]);
+    console.log('drive: '+ JSON.stringify(drive))
     const vaccinationData = await collection.find({scheduled_date: drive.scheduled_date},{projection:["classes"]}).toArray();
     const conflict = checkForSchedulingConflicts(vaccinationData,drive)
     if(conflict){
@@ -124,6 +126,7 @@ async function updateVaccinationDrive (id, drive) {
     if(drive["classes"]){
         updateBody["classes"] = drive["classes"];
     }
+    console.log('updateBody: '+ JSON.stringify(updateBody))
     const vaccinationData = await collection.find({scheduled_date: updateBody.scheduled_date},{projection:["classes"]}).toArray();
     console.log('vaccinationData '+ JSON.stringify(vaccinationData))
     const conflict = checkForSchedulingConflicts(vaccinationData,updateBody)
